@@ -1,13 +1,14 @@
-type CardProps = {
-  img: string;
-  title: string;
+import { Recipes } from "../types";
+
+type Props = {
+  recipe: Recipes
 };
 
-const Card = ({ img, title }: CardProps) => {
+const Card = ({ recipe }: Props) => {
   return (
     <div className="recipe">
-      <img src={img} alt={`${title} recipe`} />
-      <p>{title}</p>
+      <img src={recipe.image} alt={`${recipe.title} recipe`} />
+      <p>{recipe.title}</p>
     </div>
   );
 };

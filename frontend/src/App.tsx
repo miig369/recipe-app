@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import * as api from "./helpers/api";
 import Card from "./components/Card";
 import { Recipes } from "./types";
@@ -6,6 +6,7 @@ import { Recipes } from "./types";
 const App = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [recipes, setRecipes] = useState<Recipes[]>([]);
+  const pageNumber = useRef(1)
 
   useEffect(() => {
     getRecipes();
@@ -19,10 +20,23 @@ const App = () => {
     try {
       const result = await api.searchRecipes(searchTerm, 1);
       setRecipes(result.results);
+      pageNumber.current = 1;
     } catch (error) {
       console.error(error);
     }
   };
+
+  const viewMoreRecipes = async () => {
+    const nextPage = pageNumber.current + 1;
+
+    try{
+      const nextPageResults = await api.searchRecipes(searchTerm, nextPage)
+      setRecipes([...recipes, ...nextPageResults.results])
+      pageNumber.current = nextPage;
+    }catch(error){
+      console.error(error)
+    }
+  }
 
   return (
     <div className="wrapper">
@@ -40,9 +54,11 @@ const App = () => {
         <h1>Recipes</h1>
         {recipes.map((recipe) => {
           return (
-            <Card key={recipe.id} img={recipe.image} title={recipe.title} />
+            <Card key={recipe.id} recipe={recipe} />
           );
         })}
+
+        <button className="view-more-btn" onClick={viewMoreRecipes}>More Recipes</button>
       </section>
     </div>
   );
