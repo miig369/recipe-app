@@ -1,51 +1,130 @@
-:root{
-
+:root {
+  --primary-color: #F4B860;
+  --primary-color-dark: #F4C796;
+  --text-dark: #0a0a0a;
+  --text-light: #737373;
+  --extra-light: #878787;
+  --white: #ffffff;
+  --max-width: 1200px;
 }
 
-*{
-
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-body{
-
+body {
+  font-family: "Nunito Sans", sans-serif;
+  font-size:  1.6rem;
+  color: var(--text-dark)
 }
 
-html{
-
+html {
+  font-size: 62.5%;
 }
 
-.wrapper{
-
+.hero {
+  background-image: url("./assets/foodie.png");
+  height: 35rem;
+  object-fit: cover;
 }
 
-.search{
-
+header h1{
+  color: var(--primary-color)
 }
 
-.search input{
-
+header nav{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
 
-.search button{
+.wrapper {
+  max-width: var(--max-width);
+  margin: auto;
+  padding: 5rem 1rem;
+}
 
+.search-wrapper {
+  text-align: center;
+}
+
+.search-wrapper input {
+  padding: 1.2rem;
+  border-radius: 0.5rem;
+  width: 40rem;
+  border: 1px solid var(--text-light);
+}
+
+.primary-button, .secondary-button {
+  color: var(--text-dark);
+  background-color: var(--primary-color);
+  padding: 1.2rem 2rem;
+  margin: 0.5rem;
+  border-radius: 0.5rem;
+  outline: none;
+  border: none;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.secondary-button {
+  background-color: var(--primary-color-dark);
+}
+
+.search-wrapper h1 {
+  color: var(--white);
+  margin-bottom: 1.5rem;
+}
+
+.primary-button:hover {
+  background-color: var(--primary-color-dark);
+}
+
+.secondary-button:hover {
+  background-color: var(--primary-color);
 }
 
 .recipes-wrapper{
-
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-.recipes-wrapper h1{
-
+.recipes-wrapper button {
+  align-self: center;
+  margin-top: 4rem;
 }
 
-.recipe{
+.recipes-wrapper h1 {
+  margin-bottom: 2rem;
+  text-align: center;
+}
 
+.recipes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.recipe {
+  cursor: pointer;
 }
 
 .recipe img {
-
+  border-radius: 1.5rem;
+  width: 35rem;
 }
 
-.recipe p{
+.recipe-details {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(  --extra-light)
+}
 
+.recipe p {
+  width: 20rem;
+  margin: 1rem 0;
 }
