@@ -13,8 +13,8 @@ export const searchRecipes = async (searchTerm: string, page: number) => {
   const queryParams = {
     apiKey,
     query: searchTerm,
-    number: "20",
-    offset: (page * 20).toString(),
+    number: "15",
+    offset: (page * 15).toString(),
   };
 
   url.search = new URLSearchParams(queryParams).toString();
@@ -29,16 +29,18 @@ export const searchRecipes = async (searchTerm: string, page: number) => {
 };
 
 export const getRecipeById = async (recipeId: string) => {
-    if(!apiKey){
-        throw new Error("API key not available")
-    }
+  if (!apiKey) {
+    throw new Error("API key not available");
+  }
 
-    const url = new URL(`https://api.spoonacular.com/recipes/${recipeId}/summary`)
-    const params = { apiKey }
-    url.search = new URLSearchParams(params).toString();
+  const url = new URL(
+    `https://api.spoonacular.com/recipes/${recipeId}/summary`
+  );
+  const params = { apiKey };
+  url.search = new URLSearchParams(params).toString();
 
-    const response = await fetch(url);
-    const responseJson = await response.json();
+  const response = await fetch(url);
+  const responseJson = await response.json();
 
-    return responseJson;
-}
+  return responseJson;
+};

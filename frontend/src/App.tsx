@@ -2,18 +2,21 @@ import { useState, useEffect, useRef } from "react";
 import * as api from "./helpers/api";
 import Card from "./components/Card";
 import { Recipes } from "./types";
+import Modal from "./components/Modal";
 
 const App = () => {
-
-  const recipee =    {
+  const recipee = {
     id: 716429,
     title: "Pasta with Garlic, Scallions, Cauliflower & Breadcrumbs",
     image: "https://img.spoonacular.com/recipes/716429-312x231.jpg",
     imageType: "jpg",
-}
+  };
 
   const [searchTerm, setSearchTerm] = useState("");
   const [recipes, setRecipes] = useState<Recipes[]>([]);
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipes | undefined>(
+    undefined
+  );
   const pageNumber = useRef(1);
 
   useEffect(() => {
@@ -49,51 +52,53 @@ const App = () => {
   return (
     <main>
       <div className="hero">
-
-      <header>
-      <div className="wrapper"> 
-        <nav>
-          <h1>Foodie</h1>
-          <div>
-            <button className="secondary-button">Sign in</button>
-            <button className="primary-button">Sign Up</button>
+        <header>
+          <div className="wrapper">
+            <nav>
+              <h1>Foodie</h1>
+              <div>
+                <button className="secondary-button">Sign in</button>
+                <button className="primary-button">Sign Up</button>
+              </div>
+            </nav>
           </div>
-        </nav>
-      </div>
-      </header>
-      <section className="search-wrapper">
-        <div className="wrapper">
-        <h1>Explore a world of recipes from around the world</h1>
-          <input
-            type="text"
-            placeholder="Enter recipe"
-            required
-            onChange={handleChange}
-            value={searchTerm}
-          />
-          <button className="primary-button" onClick={getRecipes}>Search</button>
-        </div>
-      </section>
+        </header>
+        <section className="search-wrapper">
+          <div className="wrapper">
+            <h1>Explore a world of recipes from around the world</h1>
+            <input
+              type="text"
+              placeholder="Enter recipe"
+              required
+              onChange={handleChange}
+              value={searchTerm}
+            />
+            <button className="primary-button" onClick={getRecipes}>
+              Search
+            </button>
+          </div>
+        </section>
       </div>
       <div className="wrapper">
-      <section className="recipes-wrapper">
+        <section className="recipes-wrapper">
           <h1>Recipes</h1>
           <div className="recipes">
-          {recipes.map((recipe) => {
-            return <Card key={recipe.id} recipe={recipe} />;
-          })}
-          
-            <Card key={recipee.id} recipe={recipee} />
-            <Card key={recipee.id} recipe={recipee} />
-            <Card key={recipee.id} recipe={recipee} />
-            <Card key={recipee.id} recipe={recipee} />
-
+            {recipes.map((recipe) => {
+              return (
+                <Card
+                  key={recipe.id}
+                  recipe={recipe}
+                  onClick={() => setSelectedRecipe(recipe)}
+                />
+              );
+            })}
           </div>
           <button className="primary-button" onClick={viewMoreRecipes}>
             More Recipes
           </button>
-      </section>
+        </section>
       </div>
+      {selectedRecipe && <Modal recipeId={selectedRecipe.id.toString()} onClose={()=>setSelectedRecipe(undefined)}/>}
     </main>
   );
 };

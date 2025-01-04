@@ -8,14 +8,12 @@ type Props = {
 
 const Card = ({ recipe, onClick }: Props) => {
   return (
-    <div className="recipe">
+    <div className="recipe" onClick={onClick}>
       <img src={recipe.image} alt={`${recipe.title} recipe`} />
       <div className="recipe-details">
-      <p>{recipe.title}</p>
-      <AiOutlineLike onClick={onClick} style={{backgroundColor: 'red'}}/>
+        <p>{recipe.title}</p>
+        <AiOutlineLike style={{ backgroundColor: "red" }} />
       </div>
-     
-      
     </div>
   );
 };

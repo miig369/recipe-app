@@ -20,11 +20,11 @@ app.get("/api/recipes/search", async (req, res) => {
   res.json(results);
 });
 
-app.get('/api/recipes/:recipeId/summary', async (req, res)=>{
-    const { recipeId } = req.params;
-    const result = await RecipeAPI.getRecipeById(recipeId)
-    res.json(result)
-})
+app.get("/api/recipes/:recipeId/summary", async (req, res) => {
+  const { recipeId } = req.params;
+  const result = await RecipeAPI.getRecipeById(recipeId);
+  res.json(result);
+});
 
 app.get("/users", async (req, res) => {
   try {
