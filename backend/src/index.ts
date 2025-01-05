@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import cors from "cors";
 import * as RecipeAPI from "./recipe-api";
 import { pool } from "./db";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 const app = express();
 dotenv.config();
@@ -17,21 +19,61 @@ app.get("/api/recipes/search", async (req, res) => {
   const searchTerm = req.query.searchTerm as string;
   const page = parseInt(req.query.page as string);
   const results = await RecipeAPI.searchRecipes(searchTerm, page);
-  res.json(results);
+  res.status(200).json(results);
 });
 
 app.get("/api/recipes/:recipeId/summary", async (req, res) => {
   const { recipeId } = req.params;
   const result = await RecipeAPI.getRecipeById(recipeId);
-  res.json(result);
+  res.status(200).json(result);
 });
 
-app.get("/users", async (req, res) => {
+//Favourites
+
+
+// Auth
+app.post("/api/users/login", async (req, res) => {
+    const { username, password } = req.body;
+  
+    try {
+      const users = await pool.query("SELECT * FROM users WHERE email = $1", [
+        username,
+      ]);
+  
+      if (!users.rows.length) {
+         res.status(400).json({ detail: "User does not exist!" });
+      }
+  
+      const success = await bcrypt.compare(password, users.rows[0].password);
+      const token = jwt.sign({ username }, "secret", { expiresIn: "1hr" });
+  
+      if (success) {
+        res.status(200).json({ email: users.rows[0].username, token });
+      } else {
+        res.status(400).json({ detail: "Login failed" });
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ detail: "Server error" });
+    }
+  });
+  
+app.post("/api/users/register", async (req, res) => {
+  const { username, password } = req.body;
+  const salt = bcrypt.genSaltSync(10);
+  const hashedPassword = bcrypt.hashSync(password, salt);
+
   try {
-    const result = await pool.query("SELECT * FROM users");
-    res.json(result.rows);
-  } catch (error) {
-    console.error(error);
+    await pool.query(
+      `INSERT INTO users (email, hashed_password) VALUES($1, $2)`,
+      [username, hashedPassword]
+    );
+
+    const token = jwt.sign({ username }, "secret", { expiresIn: "1hr" });
+
+    res.status(201).json({ username, token });
+  } catch (err) {
+    console.error(err);
   }
 });
 
