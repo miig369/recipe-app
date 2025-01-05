@@ -5,14 +5,15 @@ import * as RecipeAPI from "./recipe-api";
 import { pool } from "./db";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import * as auth from "./auth";
 
 const app = express();
 dotenv.config();
 const PORT = process.env.PORT;
 const jwtKey = process.env.JWT_KEY;
 
-if(!jwtKey){
-  throw new Error('JWT_KEY is not defined in environment variables!');
+if (!jwtKey) {
+  throw new Error("JWT_KEY is not defined in environment variables!");
 }
 
 //middleware
@@ -34,6 +35,20 @@ app.get("/api/recipes/:recipeId/summary", async (req, res) => {
 });
 
 //Favourites
+app.post("/api/recipes/favourites", auth.verifyAuth, (req, res) => {
+  const { recipeId } = req.params;
+  res.json(req.params);
+});
+
+app.get("/api/recipes/favourites", auth.verifyAuth, (req, res) => {
+  const { recipeId } = req.params;
+  res.json(req.params);
+});
+
+app.delete("/api/recipes/favourites", auth.verifyAuth, (req, res) => {
+  const { recipeId } = req.params;
+  res.json(req.params);
+});
 
 // Auth
 app.post("/api/users/login", async (req, res) => {
@@ -72,18 +87,19 @@ app.post("/api/users/register", async (req, res) => {
   try {
     await pool.query(
       `INSERT INTO users (username, password) VALUES ($1, $2);`,
-      [username, hashedPassword])
+      [username, hashedPassword]
+    );
 
     const token = jwt.sign({ username }, jwtKey, { expiresIn: "1hr" });
-    console.log("check check", token);
 
     res.status(201).json({ username, token });
   } catch (err) {
     console.error(err);
+    if (err) {
+      res.json({ detail: "User registration failed" });
+    }
   }
 });
-
-
 
 app.listen(PORT, () => {
   console.log(`listening at port: ${PORT}`);
