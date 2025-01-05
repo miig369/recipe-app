@@ -9,6 +9,11 @@ import jwt from "jsonwebtoken";
 const app = express();
 dotenv.config();
 const PORT = process.env.PORT;
+const jwtKey = process.env.JWT_KEY;
+
+if(!jwtKey){
+  throw new Error('JWT_KEY is not defined in environment variables!');
+}
 
 //middleware
 app.use(express.json());
@@ -30,34 +35,35 @@ app.get("/api/recipes/:recipeId/summary", async (req, res) => {
 
 //Favourites
 
-
 // Auth
 app.post("/api/users/login", async (req, res) => {
-    const { username, password } = req.body;
-  
-    try {
-      const users = await pool.query("SELECT * FROM users WHERE email = $1", [
-        username,
-      ]);
-  
-      if (!users.rows.length) {
-         res.status(400).json({ detail: "User does not exist!" });
-      }
-  
-      const success = await bcrypt.compare(password, users.rows[0].password);
-      const token = jwt.sign({ username }, "secret", { expiresIn: "1hr" });
-  
-      if (success) {
-        res.status(200).json({ email: users.rows[0].username, token });
-      } else {
-        res.status(400).json({ detail: "Login failed" });
-      }
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ detail: "Server error" });
+  const { username, password } = req.body;
+
+  try {
+    const users = await pool.query("SELECT * FROM users WHERE username = $1", [
+      username,
+    ]);
+
+    if (!users.rows.length) {
+      res.status(400).json({ detail: "User does not exist!" });
     }
-  });
-  
+
+    const success = await bcrypt.compare(password, users.rows[0].password);
+    const token = jwt.sign({ username }, jwtKey, {
+      expiresIn: "1hr",
+    });
+
+    if (success) {
+      res.status(200).json({ email: users.rows[0].username, token });
+    } else {
+      res.status(400).json({ detail: "Login failed" });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ detail: "Server error" });
+  }
+});
+
 app.post("/api/users/register", async (req, res) => {
   const { username, password } = req.body;
   const salt = bcrypt.genSaltSync(10);
@@ -65,17 +71,19 @@ app.post("/api/users/register", async (req, res) => {
 
   try {
     await pool.query(
-      `INSERT INTO users (email, hashed_password) VALUES($1, $2)`,
-      [username, hashedPassword]
-    );
+      `INSERT INTO users (username, password) VALUES ($1, $2);`,
+      [username, hashedPassword])
 
-    const token = jwt.sign({ username }, "secret", { expiresIn: "1hr" });
+    const token = jwt.sign({ username }, jwtKey, { expiresIn: "1hr" });
+    console.log("check check", token);
 
     res.status(201).json({ username, token });
   } catch (err) {
     console.error(err);
   }
 });
+
+
 
 app.listen(PORT, () => {
   console.log(`listening at port: ${PORT}`);
