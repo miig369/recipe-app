@@ -29,7 +29,7 @@ export const verifyAuth = async (
       const decodedToken = jwt.verify(token, jwtKey) as UserData;
 
       const row = await pool.query(
-        `SELECT user_id from users WHERE username = ?`,
+        `SELECT user_id from users WHERE username = $1`,
         [decodedToken.username]
       );
 

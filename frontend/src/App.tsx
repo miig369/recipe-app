@@ -26,7 +26,7 @@ const App = () => {
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
-        await Promise.all([getRecipes()]);
+        await Promise.all([getRecipes(), getFavourites()]);
       } catch (error) {
         console.error(error);
       }
