@@ -2,7 +2,7 @@
   --primary-color: #f4b860;
   --primary-color-dark: #f4c796;
   --text-dark: #0a0a0a;
-  --text-light: #737373;
+  --text-light: #393939;
   --extra-light: #878787;
   --white: #ffffff;
   --max-width: 1200px;
@@ -130,6 +130,12 @@ header nav {
   margin: 1rem 0;
 }
 
+.recipe-details span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Modal */
 
 .overlay {
@@ -168,4 +174,42 @@ header nav {
 
 .close-btn {
   cursor: pointer;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 5rem;
+  gap: 1rem
+}
+
+.selected-tab{
+  background-color: var(--text-dark);
+  color: var(--white);
+  font-size: 1.6rem;
+  padding: 1.2rem 2.4rem;
+  outline: none;
+  border: none;
+  border-radius: 2rem;
+}
+
+.selected-tab:hover{ 
+  background-color: var(--text-light);
+}
+
+.tab{
+
+  background-color: var(--primary-color);
+  color: var(--text-dark);
+  font-size: 1.6rem;
+  padding: 1.2rem 2.4rem;
+  outline: none;
+  border: none;
+  border-radius: 2rem;
+}
+
+.tab:hover{
+  background-color: var(--primary-color-dark);
 }

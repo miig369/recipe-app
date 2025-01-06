@@ -35,7 +35,7 @@ app.get("/api/recipes/:recipeId/summary", async (req, res) => {
 });
 
 //Favourites
-app.post("/api/posts/recipes/", auth.verifyAuth, async (req, res) => {
+app.post("/api/recipes/favourites", auth.verifyAuth, async (req, res) => {
   const { recipeId } = req.params;
   //@ts-ignore
   const userId = req.userData.id
@@ -59,20 +59,21 @@ app.post("/api/posts/recipes/", auth.verifyAuth, async (req, res) => {
   }
 });
 
-app.get("/api/posts/recipes/", auth.verifyAuth, async (req, res) => {
+app.get("/api/recipes/favourite", auth.verifyAuth, async (req, res) => {
   const { recipeId } = req.params;
    //@ts-ignore
    const userId = req.userData.id
 
    try{
-    const recipes = await pool.query(`SELECT * FROM favourites WHERE id = ? AND user_id = ?`, [recipeId, userId]);
-    res.json(recipes.rows)
+    const recipeIds = await pool.query(`SELECT id FROM favourites WHERE user_id = ?`, [recipeId, userId]);
+    const result = await RecipeAPI.getFavouriteRecipeById(recipeIds.rows)
+    res.json(result)
    }catch(error){
     console.log(error)
    }
 });
 
-app.delete("/api/posts/recipes/:recipeId", auth.verifyAuth, async (req, res) => {
+app.delete("/api/recipes/favourite/:recipeId", auth.verifyAuth, async (req, res) => {
   const { recipeId } = req.params;
   //@ts-ignore
   const userId = req.userData.id

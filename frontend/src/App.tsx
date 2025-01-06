@@ -5,6 +5,14 @@ import { Recipes } from "./types";
 import RecipeModal from "./components/RecipeModal";
 import AuthModal from "./components/AuthModal";
 import { useCookies } from "react-cookie";
+import { Tabs }  from "./types"
+
+const recipe =    {
+  id: 716429,
+  title: "Pasta with Garlic, Scallions, Cauliflower & Breadcrumbs",
+  image: "https://img.spoonacular.com/recipes/716429-312x231.jpg",
+  imageType: "jpg",
+}
 
 const App = () => {
   const [cookies, setCookie, removeCookie] = useCookies(null);
@@ -18,6 +26,7 @@ const App = () => {
   const [favouriteRecipes, setFavouriteRecipes] = useState([]);
   const pageNumber = useRef(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedTab, setSelectedTab] = useState<Tabs>()
 
   useEffect(() => {
     getRecipes();
@@ -51,7 +60,7 @@ const App = () => {
 
   const getFavourites = async () => {
     const response = await fetch(
-      "http://localhost:8080/http://localhost:5173/"
+      "http://localhost:8080/"
     );
     const result = await response.json();
     setFavouriteRecipes(result);
@@ -65,7 +74,6 @@ const App = () => {
 
   return (
     <main>
-      <h3>Welcome back {username}</h3>
       {isModalOpen ? <AuthModal onClick={() => setIsModalOpen(false)} /> : null}
       <div className="hero">
         <header>
@@ -113,20 +121,26 @@ const App = () => {
           </div>
         </section>
       </div>
-
-      {/* button to view favourates need to be loggedin */}
-      {authToken ? (
+            <div className="tabs">
+              <button className={selectedTab === "recipes" ? "selected-tab" : "tab"} onClick={()=>setSelectedTab("recipes")}>All recipes</button>
+              <button className={selectedTab === "favourites" ? "selected-tab" : "tab"} onClick={()=>{authToken && setSelectedTab("favourites")}}>Favourites</button>
+            </div>
+      {selectedTab === "favourites" && (
         <>
           <h1>Favourite Recipes</h1>
-          <button onClick={getFavourites}>hello</button>
+          {/* <button onClick={getFavourites}>hello</button> */}
           {favouriteRecipes}
         </>
-      ) : (
+      ) 
+    }
+
+    { selectedTab === "recipes" &&
+      (
         <div className="wrapper">
           <section className="recipes-wrapper">
             <h1>Recipes</h1>
             <div className="recipes">
-              {recipes.map((recipe) => {
+              {/* {recipes.map((recipe) => {
                 return (
                   <Card
                     key={recipe.id}
@@ -134,7 +148,13 @@ const App = () => {
                     onClick={() => setSelectedRecipe(recipe)}
                   />
                 );
-              })}
+              })} */}
+
+                  <Card
+                    key={recipe.id}
+                    recipe={recipe}
+                    onClick={() => setSelectedRecipe(recipe)}
+                  />
             </div>
             <button className="primary-button" onClick={viewMoreRecipes}>
               More Recipes
