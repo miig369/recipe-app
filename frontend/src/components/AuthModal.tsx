@@ -44,7 +44,7 @@ const AuthModal = ({ onClick }: Props) => {
       title={isLoggedIn ? "Please sign in" : "Please sign up"}
       onClose={onClick}
     >
-      <form>
+      <form className="auth-modal">
         <input
           type="text"
           placeholder="Enter username"

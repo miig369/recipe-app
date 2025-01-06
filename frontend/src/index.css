@@ -57,7 +57,7 @@ header nav {
   border: 1px solid var(--text-light);
 }
 
-.primary-button,
+.auth-modal input[type="submit"], .primary-button,
 .secondary-button {
   color: var(--text-dark);
   background-color: var(--primary-color);
@@ -79,7 +79,7 @@ header nav {
   margin-bottom: 1.5rem;
 }
 
-.primary-button:hover {
+ .primary-button:hover {
   background-color: var(--primary-color-dark);
 }
 
@@ -212,4 +212,34 @@ header nav {
 
 .tab:hover{
   background-color: var(--primary-color-dark);
+}
+
+.auth-modal {
+  display: flex;
+  flex-direction: column;
+  border-radius: 4rem;
+}
+
+
+.auth-modal input[type="text"], 
+input[type="password"] { 
+  padding: 0.8rem;
+  border-radius: 0.4rem;
+  width: 30rem;
+  border: 1px solid var(--text-light);
+  margin: 1rem 0;
+}
+
+.auth-options{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2rem;
+  gap: 1rem;
+}
+
+.auth-options button {
+  all: unset;
+  cursor: pointer;
+  color: var(--text-light)
 }

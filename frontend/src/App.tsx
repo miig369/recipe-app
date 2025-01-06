@@ -5,31 +5,33 @@ import { Recipes } from "./types";
 import RecipeModal from "./components/RecipeModal";
 import AuthModal from "./components/AuthModal";
 import { useCookies } from "react-cookie";
-import { Tabs }  from "./types"
-
-const recipe =    {
-  id: 716429,
-  title: "Pasta with Garlic, Scallions, Cauliflower & Breadcrumbs",
-  image: "https://img.spoonacular.com/recipes/716429-312x231.jpg",
-  imageType: "jpg",
-}
+import { Tabs } from "./types";
 
 const App = () => {
+  //@ts-ignore
   const [cookies, setCookie, removeCookie] = useCookies(null);
   const authToken = cookies.AuthToken;
-  const username = cookies.Username;
   const [searchTerm, setSearchTerm] = useState("");
   const [recipes, setRecipes] = useState<Recipes[]>([]);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipes | undefined>(
     undefined
   );
-  const [favouriteRecipes, setFavouriteRecipes] = useState([]);
+  const [favouriteRecipes, setFavouriteRecipes] = useState<Recipes[]>([]);
   const pageNumber = useRef(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedTab, setSelectedTab] = useState<Tabs>()
+  const [selectedTab, setSelectedTab] = useState<Tabs>("recipes");
+
+  console.log("fav recipes", favouriteRecipes);
 
   useEffect(() => {
-    getRecipes();
+    const fetchRecipes = async () => {
+      try {
+        await Promise.all([getRecipes()]);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchRecipes();
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,15 +61,37 @@ const App = () => {
   };
 
   const getFavourites = async () => {
-    const response = await fetch(
-      "http://localhost:8080/"
-    );
-    const result = await response.json();
-    setFavouriteRecipes(result);
+    try {
+      const result = await api.getFavouriteRecipes();
+      setFavouriteRecipes(result.result);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const addFavouriteRecipe = async (recipe: Recipes) => {
+    try {
+      await api.addFavouriteRecipe(recipe);
+      setFavouriteRecipes([...favouriteRecipes, recipe]);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const deleteFavouriteRecipe = async (recipe: Recipes) => {
+    try {
+      await api.removeFavouriteRecipe(recipe);
+      const updatedRecipes = favouriteRecipes.filter(
+        (favRecipe) => recipe.id !== favRecipe.id
+      );
+      setFavouriteRecipes(updatedRecipes);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const signOut = () => {
-    removeCookie("Email");
+    removeCookie("Username");
     removeCookie("AuthToken");
     window.location.reload();
   };
@@ -121,40 +145,71 @@ const App = () => {
           </div>
         </section>
       </div>
-            <div className="tabs">
-              <button className={selectedTab === "recipes" ? "selected-tab" : "tab"} onClick={()=>setSelectedTab("recipes")}>All recipes</button>
-              <button className={selectedTab === "favourites" ? "selected-tab" : "tab"} onClick={()=>{authToken && setSelectedTab("favourites")}}>Favourites</button>
-            </div>
+      <div className="tabs">
+        <button
+          className={selectedTab === "recipes" ? "selected-tab" : "tab"}
+          onClick={() => setSelectedTab("recipes")}
+        >
+          All recipes
+        </button>
+        <button
+          className={selectedTab === "favourites" ? "selected-tab" : "tab"}
+          onClick={() => {
+            if (authToken) {
+              setSelectedTab("favourites");
+              getFavourites();
+            } else {
+              setIsModalOpen(true);
+            }
+          }}
+        >
+          Favourites
+        </button>
+      </div>
       {selectedTab === "favourites" && (
-        <>
-          <h1>Favourite Recipes</h1>
-          {/* <button onClick={getFavourites}>hello</button> */}
-          {favouriteRecipes}
-        </>
-      ) 
-    }
-
-    { selectedTab === "recipes" &&
-      (
         <div className="wrapper">
           <section className="recipes-wrapper">
-            <h1>Recipes</h1>
+            <h1>Favourite Recipes</h1>
             <div className="recipes">
-              {/* {recipes.map((recipe) => {
+              {favouriteRecipes.map((recipe) => {
                 return (
                   <Card
                     key={recipe.id}
                     recipe={recipe}
                     onClick={() => setSelectedRecipe(recipe)}
+                    onFavouriteButtonClick={deleteFavouriteRecipe}
+                    isFavourite={true}
+                    isLoggedIn={() => undefined}
                   />
                 );
-              })} */}
+              })}
+            </div>
+          </section>
+        </div>
+      )}
 
+      {selectedTab === "recipes" && (
+        <div className="wrapper">
+          <section className="recipes-wrapper">
+            <h1>Recipes</h1>
+            <div className="recipes">
+              {recipes.map((recipe) => {
+                const isFavourite = favouriteRecipes.some(
+                  (favRecipe) => recipe.id === favRecipe.id
+                );
+                return (
                   <Card
                     key={recipe.id}
                     recipe={recipe}
                     onClick={() => setSelectedRecipe(recipe)}
+                    onFavouriteButtonClick={
+                      isFavourite ? deleteFavouriteRecipe : addFavouriteRecipe
+                    }
+                    isFavourite={isFavourite}
+                    isLoggedIn={() => !authToken && setIsModalOpen(true)}
                   />
+                );
+              })}
             </div>
             <button className="primary-button" onClick={viewMoreRecipes}>
               More Recipes

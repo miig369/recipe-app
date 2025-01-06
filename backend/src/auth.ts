@@ -20,33 +20,34 @@ export const verifyAuth = async (
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    const token = req.headers.authorization?.split(" ")[1];
-    if (!token) {
-      res.status(401).json({ message: "Auth token not available" });
-      throw new Error("Auth token not available");
+  let token;
+
+  if (req.headers.cookie) {
+    try {
+      token = req.headers.cookie.split("=")[2];
+
+      const decodedToken = jwt.verify(token, jwtKey) as UserData;
+
+      const row = await pool.query(
+        `SELECT user_id from users WHERE username = ?`,
+        [decodedToken.username]
+      );
+
+      if (row.rows.length === 0) {
+        throw new Error("User not found");
+      }
+      //@ts-ignore
+      req.userData = {
+        id: row.rows[0].user_id,
+        username: decodedToken.username,
+      };
+      next();
+    } catch (error) {
+      console.log(error);
+      res.status(401).json({
+        message: "Invalid or expired token provided",
+        error: error,
+      });
     }
-    const decodedToken = jwt.verify(token, jwtKey) as UserData;
-
-    // @ts-ignore
-    const [rows] = await pool.query(
-      `SELECT user_id from users WHERE username = ?`,
-      [decodedToken.username]
-    );
-
-    if (rows.length === 0) {
-      throw new Error("User not found");
-    }
-
-    // @ts-ignore
-    req.userData = { id: rows[0].user_id, username: decodedToken.username };
-
-    next();
-  } catch (error) {
-    console.log(error);
-    res.status(401).json({
-      message: "Invalid or expired token provided",
-      error: error,
-    });
   }
 };
