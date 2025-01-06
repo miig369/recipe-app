@@ -35,19 +35,62 @@ app.get("/api/recipes/:recipeId/summary", async (req, res) => {
 });
 
 //Favourites
-app.post("/api/recipes/favourites", auth.verifyAuth, (req, res) => {
+app.post("/api/posts/recipes/", auth.verifyAuth, async (req, res) => {
   const { recipeId } = req.params;
-  res.json(req.params);
+  //@ts-ignore
+  const userId = req.userData.id
+
+  if(!recipeId){
+    res.status(400).json({message: "Invalid recipe id"})
+  }
+
+  try{
+     await pool.query(
+      `INSERT INTO favourites (recipe_id, user_id) VALUES (?, ?)`,
+      [recipeId, userId]
+    );
+
+    res.status(201).json({
+      recipeId, 
+      userId
+    })
+  }catch(error){
+    console.log(error)
+  }
 });
 
-app.get("/api/recipes/favourites", auth.verifyAuth, (req, res) => {
+app.get("/api/posts/recipes/", auth.verifyAuth, async (req, res) => {
   const { recipeId } = req.params;
-  res.json(req.params);
+   //@ts-ignore
+   const userId = req.userData.id
+
+   try{
+    const recipes = await pool.query(`SELECT * FROM favourites WHERE id = ? AND user_id = ?`, [recipeId, userId]);
+    res.json(recipes.rows)
+   }catch(error){
+    console.log(error)
+   }
 });
 
-app.delete("/api/recipes/favourites", auth.verifyAuth, (req, res) => {
+app.delete("/api/posts/recipes/:recipeId", auth.verifyAuth, async (req, res) => {
   const { recipeId } = req.params;
-  res.json(req.params);
+  //@ts-ignore
+  const userId = req.userData.id
+
+  try{
+    const recipe = await pool.query(`SELECT id FROM favourites WHERE id = ? AND user_id = ?`, [recipeId, userId]);
+
+    if (!recipe.rows.length) {
+      res.status(404).json({ detail: "Recipe does not exist!" });
+    }
+
+    await pool.query(`DELETE FROM favourites WHERE id = ?`, [recipeId])
+
+    res.json({message: "Recipe deleted successfully"})
+  }catch(error){
+   console.log(error)
+  }
+  
 });
 
 // Auth
@@ -60,7 +103,7 @@ app.post("/api/users/login", async (req, res) => {
     ]);
 
     if (!users.rows.length) {
-      res.status(400).json({ detail: "User does not exist!" });
+      res.status(404).json({ detail: "User does not exist!" });
     }
 
     const success = await bcrypt.compare(password, users.rows[0].password);
