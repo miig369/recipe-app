@@ -1,6 +1,9 @@
 # Recipe App
 
 The Recipe App is a fullstack web application built using ReactJS, NodeJS and ExpressJS. The application is tailored for food enthusiasts to explore recipes from around the world. Users can save favorite recipes for easy access and also manage recipes. 
+<img width="1613" alt="home1" src="https://github.com/user-attachments/assets/eb82b598-789c-421f-aa86-20da372cbf11" />
+<img width="1618" alt="login" src="https://github.com/user-attachments/assets/b54d785d-eabf-4902-ac20-f56975d18c6e" />
+<img width="1636" alt="register" src="https://github.com/user-attachments/assets/cc1e1762-c170-4d3a-9918-ed8f686983be" />
 
 ## Features
 
@@ -18,5 +21,3 @@ The Recipe App is a fullstack web application built using ReactJS, NodeJS and Ex
 - PostgreSQL Database
 - JWT Authentication
 - Typescript
-
-## Installation
