@@ -11,4 +11,4 @@ export interface RecipeSummary {
   summary: string;
 }
 
-export type Tabs= "recipes" | "favourites"; 
+export type Tabs = "recipes" | "favourites";

@@ -21,8 +21,6 @@ const App = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTab, setSelectedTab] = useState<Tabs>("recipes");
 
-  console.log("fav recipes", favouriteRecipes);
-
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
@@ -63,7 +61,7 @@ const App = () => {
   const getFavourites = async () => {
     try {
       const result = await api.getFavouriteRecipes();
-      setFavouriteRecipes(result.result);
+      setFavouriteRecipes(result.results);
     } catch (error) {
       console.log(error);
     }
@@ -139,7 +137,13 @@ const App = () => {
               onChange={handleChange}
               value={searchTerm}
             />
-            <button className="primary-button" onClick={getRecipes}>
+            <button
+              className="primary-button"
+              onClick={() => {
+                getRecipes();
+                setSearchTerm("");
+              }}
+            >
               Search
             </button>
           </div>

@@ -20,7 +20,7 @@ if (!jwtKey) {
 const corsOptions = {
   origin: "http://localhost:5173",
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE"], 
+  methods: ["GET", "POST", "PUT", "DELETE"],
 };
 
 //middleware
@@ -45,25 +45,30 @@ app.get("/api/recipes/:recipeId/summary", async (req, res) => {
 
 //Favourites
 app.post("/api/recipes/favourites", auth.verifyAuth, async (req, res) => {
-  //@ts-ignore
   const { recipeId } = req.body;
-  //@ts-ignore
-  const userId = req.userData?.id;
+  const { id, username } = req.user!;
 
-  //@ts-ignore
   if (!recipeId) {
     res.status(400).json({ message: "Invalid recipe id" });
   }
 
   try {
-    await pool.query(
-      `INSERT INTO favourites (recipe_id, user_id) VALUES ($1, $2)`,
-      [recipeId, userId]
+    const row = await pool.query(
+      `SELECT recipe_id from favourites WHERE recipe_id = $1 AND user_id = $2`,
+      [recipeId, id]
     );
 
+    if (row.rows.length === 0) {
+      await pool.query(
+        `INSERT INTO favourites (recipe_id, user_id) VALUES ($1, $2)`,
+        [recipeId, id]
+      );
+    } else {
+      res.json({ message: "Recipe already exists" });
+    }
     res.status(201).json({
       recipeId,
-      userId,
+      id,
     });
   } catch (error) {
     console.log(error);
@@ -71,15 +76,12 @@ app.post("/api/recipes/favourites", auth.verifyAuth, async (req, res) => {
 });
 
 app.get("/api/recipes/favourites", auth.verifyAuth, async (req, res) => {
-  console.log("req object", req);
-  //@ts-ignore
-  const userId = req.userData.id;
+  const { id, username } = req.user!;
 
-  console.log("Querying with user_id:", userId);
   try {
     const recipes = await pool.query(
       `SELECT recipe_id FROM favourites WHERE user_id = $1`,
-      [userId]
+      [id]
     );
 
     const recipeIds = recipes.rows.map((recipe) => recipe.recipe_id.toString());
@@ -93,15 +95,13 @@ app.get("/api/recipes/favourites", auth.verifyAuth, async (req, res) => {
 
 app.delete("/api/recipes/favourites/", auth.verifyAuth, async (req, res) => {
   const { recipeId } = req.body;
-  //@ts-ignore
-  const userId = req.userData.id;
 
-  console.log("recipe-id", recipeId);
+  const { id, username } = req.user!;
 
   try {
     await pool.query(
       `DELETE FROM favourites WHERE recipe_id  = $1 AND user_id = $2`,
-      [recipeId, userId]
+      [recipeId, id]
     );
 
     res.json({ message: "Recipe deleted successfully" });
@@ -151,7 +151,7 @@ app.post("/api/users/register", async (req, res) => {
       [username, hashedPassword]
     );
 
-    const token = jwt.sign({ username }, jwtKey, { expiresIn: "1hr" });
+    const token = jwt.sign({ username }, jwtKey, { expiresIn: "7d" });
 
     res.status(201).json({ username, token });
   } catch (err) {

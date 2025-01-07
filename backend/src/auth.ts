@@ -15,6 +15,14 @@ interface UserData {
   username: string;
 }
 
+declare global {
+  namespace Express {
+    interface Request {
+      user?: UserData;
+    }
+  }
+}
+
 export const verifyAuth = async (
   req: Request,
   res: Response,
@@ -36,11 +44,12 @@ export const verifyAuth = async (
       if (row.rows.length === 0) {
         throw new Error("User not found");
       }
-      //@ts-ignore
-      req.userData = {
+
+      req.user = {
         id: row.rows[0].user_id,
         username: decodedToken.username,
       };
+
       next();
     } catch (error) {
       console.log(error);
